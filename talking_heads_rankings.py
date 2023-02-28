@@ -3,7 +3,6 @@
 Get CBS rankings from website (three pickers)
 """
 from functools import reduce
-# import json
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -81,16 +80,5 @@ def output_th_spreadsheet():
     pd.DataFrame(_thead_rankings()).transpose().to_excel(
         "thead_data.xlsx", sheet_name="Sheet", index=True)
 
-#def player_keys():
-#    """
-#    Return a list of players identification strings with the following format:
-#        /mlb/player/<id #>/<name>/fantasy
-#    id # is the multi-digit id used by CBS sports
-#    name is the player's name, all lower case, uses '-' instead of blank
-#    """
-#    return list(set(list(map(lambda a: a.split("+")[0], list(_raw_dict())))))
-
 if __name__ == "__main__":
-    #with open("player_ids.json", "w", encoding='utf8') as outfile:
-    #    outfile.write(json.dumps(player_keys(), indent=4, ensure_ascii=False))
     output_th_spreadsheet()

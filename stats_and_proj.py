@@ -3,7 +3,6 @@
 Get CBS player positions
 """
 import datetime
-#import json
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -39,32 +38,20 @@ def _get_pnumb_list(web_page):
     return list(map(_extract_numb,
            _read_stat_page(web_page).find_all("a", href=True)))[::2]
 
-#def _pos_eligibility(position):
-#    if position.endswith('P'):
-#        return []
-#    return [position, _get_pnumb_list(_get_current_page(
-#`                    position))]
-
-#def positions_info():
-#    """
-#    Return a dict of eligible player IDs indexed by position
-#    """
-#    return dict(list(filter(lambda a: len(a) > 0,
-#                            _check_all_pos(_pos_eligibility))))
-
-def _build_df(test_stats):
-    print(test_stats)
-    #test_stats = _get_current_page('RP')
-    df = pd.read_html("".join([_rootdir(), test_stats]))[0]
-    pnlist = _get_pnumb_list(test_stats)
-    if test_stats[1] == 'P':
-        df1 = df.iloc[:, [3, 5, 10, 11, 13, 14, 17]]
-    else:
-        df1 = df.iloc[:, [5, 6, 7, 11, 12, 20]]
-    df2 = df1.rename(index=dict(zip(
-        list(range(len(df1.index))), pnlist)))
-    df2.to_excel("_".join(test_stats.split('/')[0:2]) + ".xlsx")
-    return test_stats
+def _build_df(stat_set):
+    def _bld_get_cols(df0):
+        if stat_set[1] == 'P':
+            return df0.iloc[:, [3, 5, 10, 11, 13, 14, 17]]
+        return df0.iloc[:, [5, 6, 7, 11, 12, 20]]
+    def _bld_df_output(df1):
+        df1.rename(index=dict(zip(
+            list(range(len(df1.index))), _get_pnumb_list(stat_set)))
+            ).to_excel("_".join(stat_set.split('/')[0:2]) + ".xlsx")
+    def _bld_df_handle_pd(df0):
+        _bld_df_output(_bld_get_cols(df0))
+    print(stat_set)
+    _bld_df_handle_pd(pd.read_html("".join([_rootdir(), stat_set]))[0])
+    return stat_set
 
 def _stats_and_proj(position):
     return [_build_df(_get_current_page(position)),
@@ -78,8 +65,5 @@ def gen_spreadsheets():
     return _check_all_pos(_stats_and_proj)
 
 if __name__ == "__main__":
-    #with open("player_pos.json", "w", encoding='utf8') as outfile:
-    #    outfile.write(json.dumps(positions_info(), indent=4,
-    #                             ensure_ascii=False))
     if len(gen_spreadsheets()) != 9:
         print("Potential Problem")
