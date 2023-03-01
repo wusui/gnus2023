@@ -1,6 +1,6 @@
 # Copyright (C) 2023 Warren Usui, MIT License
 """
-Get CBS player positions
+Get CBS player statistics (scraping web pages)
 """
 import datetime
 import requests
