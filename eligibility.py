@@ -2,33 +2,24 @@
 """
 Get CBS player positions
 """
-import os
 import itertools
 import pandas as pd
-
-def _get_sheets():
-    return list(filter(lambda a: a.endswith(".xlsx"), os.listdir()))
-
-def _read_sheets():
-    return dict(list(map(lambda a: [a.split('.')[0], pd.read_excel(a)],
-                         _get_sheets())))
+from common_gnus import read_sheets
 
 def _main_head_info(head_info):
     def _person(value_keys):
         def _person_inner(plyr_numb):
-            def _position(plyr_numb):
-                def _position_inner(v_key):
-                    def _get_indx(in_val):
-                        if in_val.split("_")[-1] == \
-                                list(value_keys[0].keys())[0].split("_")[-1]:
-                            return 0
-                        return 1
-                    if plyr_numb in value_keys[_get_indx(v_key)][v_key]:
-                        return v_key
-                    return ''
-                return _position_inner
-            return list(map(_position(plyr_numb), list(value_keys[0]))) + \
-                    list(map(_position(plyr_numb), list(value_keys[1])))
+            def _position(v_key):
+                def _get_indx(in_val):
+                    if in_val.split("_")[-1] == \
+                            list(value_keys[0].keys())[0].split("_")[-1]:
+                        return 0
+                    return 1
+                if plyr_numb in value_keys[_get_indx(v_key)][v_key]:
+                    return v_key
+                return ''
+            return list(map(_position, list(value_keys[0]))) + \
+                   list(map(_position, list(value_keys[1])))
         return _person_inner
     def _set_elg_values(value_keys):
         return list(map(lambda a: list(filter(None, a)),
@@ -51,7 +42,7 @@ def _main_head_info(head_info):
     def _fmt_eligibility_info(pos_list):
         return [_check_pos(pos_list)(0), _check_pos(pos_list)(1)]
     return _set_elg_values(_fmt_eligibility_info(
-            _pull_not_right(_read_sheets())))
+            _pull_not_right(read_sheets())))
 
 def _get_pos_columns():
     return _main_head_info(pd.read_excel('thead_data.xlsx'))
@@ -79,7 +70,8 @@ def _gen_elig_cols(pos_info):
 
 def _add_elg_cols(col_info):
     pd.concat([pd.read_excel("thead_data.xlsx"),
-               col_info[0], col_info[1]], axis=1).to_excel("with_elig.xlsx")
+                col_info[0], col_info[1]], axis=1).rename(
+                columns={'Unnamed: 0':'ID'}).to_excel("with_elig.xlsx")
 
 def add_eligibility():
     """

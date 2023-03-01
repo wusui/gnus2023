@@ -2,23 +2,18 @@
 """
 Get CBS player statistics (scraping web pages)
 """
-import datetime
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from common_gnus import this_year, last_year
 
-def _rootdir():
-    return "https://www.cbssports.com/fantasy/baseball/stats/"
-
-def _this_year():
-    return datetime.date.today().year
-
-def _last_year():
-    return _this_year() - 1
+def _rootdir(fname):
+    return "".join(["https://www.cbssports.com/fantasy/baseball/stats/",
+                    fname])
 
 def _read_stat_page(stat_details):
     return BeautifulSoup(requests.get(
-                "".join([_rootdir(), stat_details]),
+                _rootdir(stat_details),
                 timeout=600).text, 'html.parser').find("tbody")
 
 def _check_all_pos(inp_func):
@@ -29,10 +24,10 @@ def _extract_numb(plyr_info):
     return plyr_info["href"].split("/")[3]
 
 def _get_current_page(position):
-    return f"{position}/{_this_year()}/season/projections"
+    return f"{position}/{this_year()}/season/projections"
 
 def _get_past_page(position):
-    return f"{position}/{_last_year()}/season/stats"
+    return f"{position}/{last_year()}/season/stats"
 
 def _get_pnumb_list(web_page):
     return list(map(_extract_numb,
@@ -50,7 +45,7 @@ def _build_df(stat_set):
     def _bld_df_handle_pd(df0):
         _bld_df_output(_bld_get_cols(df0))
     print(stat_set)
-    _bld_df_handle_pd(pd.read_html("".join([_rootdir(), stat_set]))[0])
+    _bld_df_handle_pd(pd.read_html(_rootdir(stat_set))[0])
     return stat_set
 
 def _stats_and_proj(position):
