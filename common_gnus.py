@@ -6,7 +6,10 @@ import os
 import datetime
 import pandas as pd
 
-def _get_sheets():
+def get_sheets():
+    """
+    Find all xlsx files
+    """
     return list(filter(lambda a: a.endswith(".xlsx"), os.listdir()))
 
 def read_sheets():
@@ -15,7 +18,7 @@ def read_sheets():
     by file name
     """
     return dict(list(map(lambda a: [a.split('.')[0], pd.read_excel(a)],
-                         _get_sheets())))
+                         get_sheets())))
 
 def this_year():
     """

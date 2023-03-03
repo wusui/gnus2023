@@ -72,7 +72,7 @@ def _th_format(in_data):
 def _thead_rankings():
     return dict(_th_format(_thr_rtn(_raw_dict())))
 
-def output_th_spreadsheet():
+def talking_heads_rankings():
     """
     Return a spreadsheet indexed by player id of CBS sports monetary values
     for each player as evaluated by three commentators.
@@ -81,4 +81,4 @@ def output_th_spreadsheet():
         "thead_data.xlsx", sheet_name="Sheet", index=True)
 
 if __name__ == "__main__":
-    output_th_spreadsheet()
+    talking_heads_rankings()

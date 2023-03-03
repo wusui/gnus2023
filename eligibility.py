@@ -73,7 +73,7 @@ def _add_elg_cols(col_info):
                 col_info[0], col_info[1]], axis=1).rename(
                 columns={'Unnamed: 0':'ID'}).to_excel("with_elig.xlsx")
 
-def add_eligibility():
+def eligibility():
     """
     Add position eligibility columns (last year's stats, this year's
     projected positions)
@@ -81,4 +81,4 @@ def add_eligibility():
     _add_elg_cols(_gen_elig_cols(_get_pos_columns()))
 
 if __name__ == "__main__":
-    add_eligibility()
+    eligibility()

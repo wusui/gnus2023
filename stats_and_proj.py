@@ -52,7 +52,7 @@ def _stats_and_proj(position):
     return [_build_df(_get_current_page(position)),
             _build_df(_get_past_page(position))]
 
-def gen_spreadsheets():
+def stats_and_proj():
     """
     Generate the spreadsheets for each position's statistics from last year
     and projected statistics for this year
@@ -60,5 +60,5 @@ def gen_spreadsheets():
     return _check_all_pos(_stats_and_proj)
 
 if __name__ == "__main__":
-    if len(gen_spreadsheets()) != 9:
+    if len(stats_and_proj()) != 9:
         print("Potential Problem")
