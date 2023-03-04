@@ -42,12 +42,7 @@ def _get_gen_tables(all_stats):
     return _make_stat_lines(dict(list(map(_make_dfs,
                          _gen_tbls(this_year()) + _gen_tbls(last_year())))))
 
-def _main_adder(all_stats):
-    def _mk_long_rows():
-        return list(map(lambda a: list(itertools.chain(*a)),
-                        _get_gen_tables(all_stats)))
-    def _mk_series():
-        return list(map(pd.Series, _mk_long_rows()))
+def _column_headers(all_stats):
     def _half_pattern():
         return [f'RP_{this_year()}', f'1B_{this_year()}']
     def _head_pattern():
@@ -56,21 +51,29 @@ def _main_adder(all_stats):
         return list(map(lambda a: list(all_stats[a].keys())[1:],
                                        _head_pattern()))
     def _gen_part_head():
-        return list(map(lambda a: " ".join(a.split()[1:]),
-                    list(itertools.chain(*_arrange_head()))))
-    def _foo(head_list):
-        def _foo_inner(indx):
+        return list(map(lambda a: a.replace("/", "_"),
+                list(map(lambda a: "_".join(a.split()[1:]),
+                list(itertools.chain(*_arrange_head()))))))
+    def _add_proj_or_last_year(head_list):
+        def _add_proj_or_last_year_inner(indx):
             if indx < len(head_list) / 2:
-                return [indx, " ".join(["Projected", head_list[indx]])]
-            return  [indx, " ".join(["Last Year", head_list[indx]])]
-        return _foo_inner
+                return [indx, "_".join(["Projected", head_list[indx]])]
+            return  [indx, "_".join(["Last_Year", head_list[indx]])]
+        return _add_proj_or_last_year_inner
     def _col_headers(head_list):
-        return list(map(_foo(head_list), range(len(head_list))))
-    def _column_headers():
-        return dict(_col_headers(_gen_part_head()))
+        return list(map(_add_proj_or_last_year(head_list),
+                        range(len(head_list))))
+    return dict(_col_headers(_gen_part_head()))
+
+def _main_adder(all_stats):
+    def _mk_long_rows():
+        return list(map(lambda a: list(itertools.chain(*a)),
+                        _get_gen_tables(all_stats)))
+    def _mk_series():
+        return list(map(pd.Series, _mk_long_rows()))
     def _generate_stat_half():
         return pd.concat(_mk_series(), axis=1).transpose().rename(
-                        columns=_column_headers())
+                        columns=_column_headers(all_stats))
     pd.concat([all_stats['with_elig'], _generate_stat_half()],
               axis=1).to_excel('extracted_data.xlsx')
 

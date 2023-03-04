@@ -7,30 +7,17 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from common_gnus import this_year, last_year
 
-def _rootdir(fname):
+def _read_df(fname):
     return "".join(["https://www.cbssports.com/fantasy/baseball/stats/",
                     fname])
 
 def _read_stat_page(stat_details):
     return BeautifulSoup(requests.get(
-                _rootdir(stat_details),
+                _read_df(stat_details),
                 timeout=600).text, 'html.parser').find("tbody")
 
-def _check_all_pos(inp_func):
-    return list(map(inp_func,
-                    ['C', '1B', '2B', 'SS', '3B', 'OF', 'U', 'SP', 'RP']))
-
-def _extract_numb(plyr_info):
-    return plyr_info["href"].split("/")[3]
-
-def _get_current_page(position):
-    return f"{position}/{this_year()}/season/projections"
-
-def _get_past_page(position):
-    return f"{position}/{last_year()}/season/stats"
-
 def _get_pnumb_list(web_page):
-    return list(map(_extract_numb,
+    return list(map(lambda a: a["href"].split("/")[3],
            _read_stat_page(web_page).find_all("a", href=True)))[::2]
 
 def _build_df(stat_set):
@@ -45,19 +32,20 @@ def _build_df(stat_set):
     def _bld_df_handle_pd(df0):
         _bld_df_output(_bld_get_cols(df0))
     print(stat_set)
-    _bld_df_handle_pd(pd.read_html(_rootdir(stat_set))[0])
+    _bld_df_handle_pd(pd.read_html(_read_df(stat_set))[0])
     return stat_set
 
-def _stats_and_proj(position):
-    return [_build_df(_get_current_page(position)),
-            _build_df(_get_past_page(position))]
+def _stats_and_proj_bypos(position):
+    return [_build_df(f"{position}/{this_year()}/season/projections"),
+            _build_df(f"{position}/{last_year()}/season/stats")]
 
 def stats_and_proj():
     """
     Generate the spreadsheets for each position's statistics from last year
     and projected statistics for this year
     """
-    return _check_all_pos(_stats_and_proj)
+    return list(map(_stats_and_proj_bypos,
+                    ['C', '1B', '2B', 'SS', '3B', 'OF', 'U', 'SP', 'RP']))
 
 if __name__ == "__main__":
     if len(stats_and_proj()) != 9:

@@ -41,11 +41,8 @@ def _thr_rtn(raw_data):
 def _namify(istring):
     return " ".join(list(map(lambda a: a.capitalize(), istring.split("-"))))
 
-def _mny_fmt(in_data):
-    return f'{in_data:.2f}'
-
 def _average_val(cost_data):
-    return _mny_fmt(sum(list(map(lambda a: int(a[-1][1:]) / 3, cost_data))))
+    return f'{sum(list(map(lambda a: int(a[-1][1:]) / 3, cost_data))):.2f}'
 
 def _gen_pos(position):
     if position.endswith('F'):
