@@ -6,11 +6,13 @@ import os
 from add_stats import add_stats
 from common_gnus import get_sheets
 from eligibility import eligibility
+from gen_adjusted_stats import gen_adjusted_stats
+from gnus_init_cols import gnus_init_cols
 from stats_and_proj import stats_and_proj
 from talking_heads_rankings import talking_heads_rankings
 
 def _deleter(xlsx_file):
-    if xlsx_file == "extracted_data.xlsx":
+    if xlsx_file == "gnu_adjusted_stats.xlsx":
         return
     os.remove(xlsx_file)
 
@@ -25,6 +27,8 @@ def generate_spreadsheet():
     stats_and_proj()
     eligibility()
     add_stats()
+    gnus_init_cols()
+    gen_adjusted_stats()
     _cleanup()
 
 if __name__ == "__main__":

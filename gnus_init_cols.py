@@ -57,9 +57,9 @@ def _gnus_init_cols(df_stats):
     def _gen_gnu_column(stat_pkg):
         return list(map(stat_pkg[1](stat_pkg[0]),
                         range(len(df_stats))))
-    pd.concat([df_stats, df_stats.assign(
+    pd.concat([df_stats.assign(
         **_assign_kwargs())], axis=1).to_excel(
-                "gnu_stats_included.xlsx")
+                "gnu_stats_included.xlsx", index=False)
 
 def gnus_init_cols():
     """
