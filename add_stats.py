@@ -65,6 +65,13 @@ def _column_headers(all_stats):
                         range(len(head_list))))
     return dict(_col_headers(_gen_part_head()))
 
+def _write_it(df1_out):
+    df1_out.to_excel('extracted_data.xlsx', index=False)
+
+def _drop_extra(df_out):
+    _write_it(df_out[df_out.columns.drop(list(df_out.filter(
+        regex='Unnamed: 0')))])
+
 def _main_adder(all_stats):
     def _mk_long_rows():
         return list(map(lambda a: list(itertools.chain(*a)),
@@ -74,8 +81,10 @@ def _main_adder(all_stats):
     def _generate_stat_half():
         return pd.concat(_mk_series(), axis=1).transpose().rename(
                         columns=_column_headers(all_stats))
-    pd.concat([all_stats['with_elig'], _generate_stat_half()],
-              axis=1).to_excel('extracted_data.xlsx')
+    _drop_extra(pd.concat([all_stats['with_elig'], _generate_stat_half()],
+              axis=1))
+    #pd.concat([all_stats['with_elig'], _generate_stat_half()],
+    #          axis=1).to_excel('extracted_data.xlsx', index=False)
 
 def add_stats():
     """
