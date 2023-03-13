@@ -31,3 +31,22 @@ def last_year():
     Get previous year
     """
     return this_year() - 1
+
+def get_groups():
+    """
+    Split into two sets of statistics
+    """
+    return ["Projected", "Last_Year"]
+
+def get_bat_stats():
+    """
+    Get names of batter statistics
+    """
+    return ["Batting_Avg", "Home_Runs", "Runs", "Runs_Batted_In",
+            "Stolen_Bases"]
+
+def get_pit_stats():
+    """
+    Get names of pitcher statistics
+    """
+    return ["Wins", "Saves", "ERA", "Whip", "Ks_per_9"]

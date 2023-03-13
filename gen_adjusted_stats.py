@@ -5,6 +5,7 @@ Calculate metrics for statistics that are ratios
 """
 import itertools
 import pandas as pd
+from common_gnus import get_groups
 
 def _adj_data(group):
     return {
@@ -17,9 +18,6 @@ def _adj_data(group):
         "Ks_per_9": [f"{group}_Strikeouts",
                      f"Gnu_{group}_outs", 900, 3000, 27]
     }
-
-def _get_groups():
-    return ["Projected", "Last_Year"]
 
 def _gen_adjusted(orig_stats):
     def _calc_stats(group):
@@ -38,17 +36,17 @@ def _gen_adjusted(orig_stats):
     def _hndl_grp(group):
         return list(map(_calc_stats(group),
                         list(_adj_data(group))))
-    return list(map(_hndl_grp, _get_groups()))
+    return list(map(_hndl_grp, get_groups()))
 
 def _formatted(new_columns):
     def _fmt_grp_lev(group_num):
         def _fmt_stat_lev(stat_num):
             return pd.Series(new_columns[group_num][stat_num],
                              name="_".join(["Gnu",
-                                    _get_groups()[group_num],
+                                    get_groups()[group_num],
                                     list(_adj_data("Protected"))[stat_num]]))
         return list(map(_fmt_stat_lev, range(len(_adj_data("Projected")))))
-    return list(map(_fmt_grp_lev, range(len(_get_groups()))))
+    return list(map(_fmt_grp_lev, range(len(get_groups()))))
 
 def _gen_formatted_stats(orig_df):
     def _chain_stats(fmtted_stats):
