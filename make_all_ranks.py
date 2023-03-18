@@ -60,7 +60,8 @@ def _make_all_ranks(df1):
     def _gen_full_df():
         return pd.concat([df1, _gen_df()], axis=1)
 
-    _gen_full_df().rename(columns=_gencols()).to_excel("total_rankings.xlsx")
+    _gen_full_df().rename(columns=_gencols()).to_excel(
+                        "total_rankings.xlsx", index=False)
 
 def make_all_ranks():
     """
