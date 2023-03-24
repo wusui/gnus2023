@@ -69,6 +69,81 @@ def _st_math(sinfo):
         return [[1], [3], [4], [5], [2, 0]]
     return [[0], [2], [1, 3], [4, 3], [5, 3]]
 
+def _set_up_val(inlist):
+    if len(inlist) == 2:
+        return inlist[0] / inlist[1]
+    return inlist[0]
+
+def _calc_factors(parms):
+    def _set_factor_1():
+        if parms['o'] in (parms['p'], parms['s']):
+            return .5
+        return 0
+    def _set_factor_2(ifactor):
+        if parms['o'] < max([parms['p'], parms['s']]):
+            if parms['o'] > min([parms['p'], parms['s']]):
+                return 1
+        return ifactor
+    def _set_factor_3(ifactor):
+        if parms['p'] < parms['s']:
+            return 0 - ifactor
+        return ifactor
+    def _set_factor_4(ifactor):
+        if parms['p'] < parms['s']:
+            return 0 - ifactor
+        return ifactor
+    def _set_factor_5(ifactor):
+        if parms['m'] in ([4, 3], [5, 3]):
+            return 0 - ifactor
+        return ifactor
+    return _set_factor_5(_set_factor_4(_set_factor_3(_set_factor_2(
+                        _set_factor_1()))))
+
+def _factor_calc(sinfo):
+    def _fc_lev1(plyr):
+        def _fc_lev2(one_team):
+            def _fc_lev3(other_team):
+                def _fc_lev4(math_vars):
+                    def _addup(list1):
+                        def _addup_inner(list2):
+                            return list1[list2[0]] + list2[1]
+                        return _addup_inner
+                    def _set_ltsize(ltsize):
+                        def _set_othr_stat(othr_stat):
+                            def _set_orig_stat(orig_stat):
+                                def _set_pstat(pstat):
+                                    def adj1():
+                                        return list(map(lambda a:
+                                                a * (ltsize - 1),
+                                                orig_stat))
+                                    def adj2():
+                                        return list(map(lambda a: a / ltsize,
+                                                adj1()))
+                                    def _set_padj_stat(padj_stat):
+                                        if one_team == other_team:
+                                            return 0
+                                        return _calc_factors({
+                                                "p": _set_up_val(padj_stat),
+                                                "o": _set_up_val(othr_stat),
+                                                "s": _set_up_val(orig_stat),
+                                                "m": math_vars})
+                                    return _set_padj_stat(
+                                                    list(map(_addup(adj2()),
+                                                    pstat)))
+                                return _set_pstat(enumerate(list(map(_make_int,
+                                                list(map(lambda a:
+                                                plyr[_get_slist(sinfo)[a]],
+                                                math_vars))))))
+                            return _set_orig_stat(
+                                    list(map(lambda a: one_team[a],math_vars)))
+                        return _set_othr_stat(list(map(lambda a: other_team[a],
+                                                       math_vars)))
+                    return _set_ltsize(_tsize(_get_slist(sinfo)))
+                return _fc_lev4
+            return _fc_lev3
+        return _fc_lev2
+    return _fc_lev1
+
 def _simulation(sinfo):
     def _sim_with_df(d_frame):
         def _chk_indv(s_teams):
@@ -76,54 +151,23 @@ def _simulation(sinfo):
                 def _chk_vs_vteams(one_team):
                     def _chk_vs_oteams(other_team):
                         def _eval_diff(math_vars):
-                            def _addup(list1):
-                                def _addup_inner(list2):
-                                    return list1[list2[0]] + list2[1]
-                                return _addup_inner
-                            if one_team == other_team:
-                                return 0
-                            stat_list = _get_slist(sinfo)
-                            tsize = _tsize(stat_list)
-                            other_stat = list(map(lambda a: other_team[a],
-                                                math_vars))
-                            orig_stat = list(map(lambda a: one_team[a],
-                                                math_vars))
-                            pstat = list(map(lambda a: plyr[stat_list[a]],
-                                                math_vars))
-                            pstat = list(map(_make_int, pstat))
-                            adj1 = list(map(lambda a: a * (tsize - 1),
-                                                orig_stat))
-                            adj2 = list(map(lambda a: a / tsize, adj1))
-                            padj = list(map(_addup(adj2), enumerate(pstat)))
-                            oval = other_stat[0]
-                            pval = padj[0]
-                            sval = orig_stat[0]
-                            if len(other_stat) == 2:
-                                oval = other_stat[0] / other_stat[1]
-                                pval = padj[0] / padj[1]
-                                sval = orig_stat[0] / orig_stat[1]
-                            factor = 0
-                            if oval in (pval, sval):
-                                factor = .5
-                            if oval < max([pval, sval]):
-                                if oval > min([pval, sval]):
-                                    factor = 1
-                            if pval < sval:
-                                factor = 0 - factor
-                            if math_vars in ([4, 3], [5, 3]):
-                                factor = 0 - factor
-                            return factor
+                            return _factor_calc(sinfo)(plyr)(one_team)(
+                                                other_team)(math_vars)
                         return sum(list(map(_eval_diff, _st_math(sinfo))))
                     return sum(list(map(_chk_vs_oteams, s_teams)))
                 return sum(list(map(_chk_vs_vteams, s_teams)))
             return _chk_indv_inner
-        sim_tms = _gen_sim_stats(d_frame)(_get_slist(sinfo))
-        answer = list(map(_chk_indv(sim_tms), list(d_frame.iloc)))
-        xxx = pd.Series(answer, name="Simulation")
-        xxf = pd.concat([d_frame, xxx], axis=1)
-        xxf.to_excel(os.sep.join(["simulation",
+        def _get_sim_tms():
+            return _gen_sim_stats(d_frame)(_get_slist(sinfo))
+        def _get_answer():
+            return list(map(_chk_indv(_get_sim_tms()), list(d_frame.iloc)))
+        def _get_sim_col():
+            return pd.Series(_get_answer(), name="Simulation")
+        def _get_sim_frame():
+            return pd.concat([d_frame, _get_sim_col()], axis=1)
+        _get_sim_frame().to_excel(os.sep.join(["simulation",
                                   "_".join(sinfo) + ".xlsx"]), index=False)
-        return answer
+        return _get_answer()
     return _sim_with_df(_read_xlsx(sinfo))
 
 def simulation():
